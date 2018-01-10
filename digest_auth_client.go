@@ -11,7 +11,7 @@ type DigestRequest struct {
 	Body     string
 	Method   string
 	Password string
-	Uri      string
+	URI      string
 	Username string
 	Auth     *authorization
 	Wa       *wwwAuthenticate
@@ -43,7 +43,7 @@ func (dr *DigestRequest) UpdateRequest(username, password, method, uri, body str
 	dr.Body = body
 	dr.Method = method
 	dr.Password = password
-	dr.Uri = uri
+	dr.URI = uri
 	dr.Username = username
 	return dr
 }
@@ -74,7 +74,7 @@ func (dr *DigestRequest) Execute() (resp *http.Response, err error) {
 	}
 
 	var req *http.Request
-	if req, err = http.NewRequest(dr.Method, dr.Uri, bytes.NewReader([]byte(dr.Body))); err != nil {
+	if req, err = http.NewRequest(dr.Method, dr.URI, bytes.NewReader([]byte(dr.Body))); err != nil {
 		return nil, err
 	}
 
@@ -135,7 +135,7 @@ func (dr *DigestRequest) executeExistingDigest() (resp *http.Response, err error
 func (dr *DigestRequest) executeRequest(authString string) (resp *http.Response, err error) {
 	var req *http.Request
 
-	if req, err = http.NewRequest(dr.Method, dr.Uri, bytes.NewReader([]byte(dr.Body))); err != nil {
+	if req, err = http.NewRequest(dr.Method, dr.URI, bytes.NewReader([]byte(dr.Body))); err != nil {
 		return nil, err
 	}
 

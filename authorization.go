@@ -61,7 +61,7 @@ func (ah *authorization) refreshAuthorization(dr *DigestRequest) (*authorization
 
 	ah.Cnonce = ah.hash(fmt.Sprintf("%d:%s:my_value", time.Now().UnixNano(), dr.Username))
 
-	url, err := url.Parse(dr.Uri)
+	url, err := url.Parse(dr.URI)
 	if err != nil {
 		return nil, err
 	}

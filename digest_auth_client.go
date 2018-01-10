@@ -15,6 +15,7 @@ type DigestRequest struct {
 	Username string
 	Auth     *authorization
 	Wa       *wwwAuthenticate
+	Header   map[string]string
 }
 
 type DigestTransport struct {
@@ -45,6 +46,7 @@ func (dr *DigestRequest) UpdateRequest(username, password, method, uri, body str
 	dr.Password = password
 	dr.URI = uri
 	dr.Username = username
+	dr.Header = nil
 	return dr
 }
 
@@ -76,6 +78,10 @@ func (dr *DigestRequest) Execute() (resp *http.Response, err error) {
 	var req *http.Request
 	if req, err = http.NewRequest(dr.Method, dr.URI, bytes.NewReader([]byte(dr.Body))); err != nil {
 		return nil, err
+	}
+
+	for k, v := range dr.Header {
+		req.Header.Set(k, v)
 	}
 
 	client := &http.Client{
@@ -140,6 +146,9 @@ func (dr *DigestRequest) executeRequest(authString string) (resp *http.Response,
 	}
 
 	req.Header.Add("Authorization", authString)
+	for k, v := range dr.Header {
+		req.Header.Set(k, v)
+	}
 
 	client := &http.Client{
 		Timeout: 30 * time.Second,

@@ -27,6 +27,7 @@ Or you can use it with `http.Request`
 
 ```go
 t := dac.NewTransport(username, password)
+t.Client = &http.Client{Jar:...} // Custom http.Client settings go here (can chain)
 req, err := http.NewRequest(method, uri, payload)
 
 if err != nil {

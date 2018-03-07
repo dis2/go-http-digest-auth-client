@@ -8,6 +8,7 @@ import (
 )
 
 type DigestRequest struct {
+	*http.Client
 	Body     string
 	Method   string
 	Password string
@@ -15,10 +16,11 @@ type DigestRequest struct {
 	Username string
 	Auth     *authorization
 	Wa       *wwwAuthenticate
-	Header   map[string]string
+	Header   http.Header
 }
 
 type DigestTransport struct {
+	*http.Client
 	Password string
 	Username string
 }
@@ -65,6 +67,8 @@ func (dt *DigestTransport) RoundTrip(req *http.Request) (resp *http.Response, er
 	}
 
 	dr := NewRequest(username, password, method, uri, body)
+	dr.Client = dt.Client
+	dr.Header = req.Header
 	return dr.Execute()
 }
 
@@ -80,13 +84,16 @@ func (dr *DigestRequest) Execute() (resp *http.Response, err error) {
 		return nil, err
 	}
 
-	for k, v := range dr.Header {
-		req.Header.Set(k, v)
+	req.Header = dr.Header
+
+	// Use client from transport
+	client := dr.Client
+	if client == nil {
+		client = &http.Client{
+			Timeout: 30 * time.Second,
+		}
 	}
 
-	client := &http.Client{
-		Timeout: 30 * time.Second,
-	}
 	if resp, err = client.Do(req); err != nil {
 		return nil, err
 	}
@@ -145,13 +152,15 @@ func (dr *DigestRequest) executeRequest(authString string) (resp *http.Response,
 		return nil, err
 	}
 
+	req.Header = dr.Header
 	req.Header.Add("Authorization", authString)
-	for k, v := range dr.Header {
-		req.Header.Set(k, v)
-	}
 
-	client := &http.Client{
-		Timeout: 30 * time.Second,
+	// Use client from transport
+	client := dr.Client
+	if client == nil {
+		client = &http.Client{
+			Timeout: 30 * time.Second,
+		}
 	}
 
 	return client.Do(req)
